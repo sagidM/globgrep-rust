@@ -5,10 +5,9 @@ extern crate glob;
 use std::error::Error;
 use std::fs;
 use std::path::PathBuf;
-use lib::Grep;
 
 fn main() {
-    let grep = Grep::construct_grep_from_args();
+    let grep = lib::Grep::construct_grep_from_args();
     let matcher = lib::build_matcher(&grep, grep.query.as_str());
 
     for path in lib::get_files(grep.filename.as_str()) {
