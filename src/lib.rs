@@ -1,8 +1,7 @@
 use std::env;
 use regex::RegexBuilder;
-use std::iter::{Filter, Map};
 use std::path::PathBuf;
-use glob::{glob, GlobResult, Paths};
+use glob::glob;
 
 /// Represents a configuration of the app.
 /// It consists of the arguments given to the program
@@ -34,12 +33,12 @@ impl Grep {
 /// globgrep::get_paths("*.txt"); // returns all txt files
 /// globgrep::get_paths("src/*"); // returns everything in the src dir
 /// ```
-pub fn get_paths(pattern: &str) -> Map<Paths, fn(GlobResult) -> std::path::PathBuf> {
+pub fn get_paths(pattern: &str) -> impl Iterator<Item=PathBuf> {
     glob(pattern).unwrap().map(|path| path.unwrap())
 }
 
 /// Calls `get_paths` and filters out only the files
-pub fn get_files(pattern: &str) -> Filter<Map<Paths, fn(GlobResult) -> PathBuf>, fn(&PathBuf) -> bool> {
+pub fn get_files(pattern: &str) -> impl Iterator<Item=PathBuf> {
     return get_paths(pattern).filter(|path| path.is_file());
 }
 
