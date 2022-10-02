@@ -1,5 +1,4 @@
 use std::env;
-use std::error::Error;
 use regex::RegexBuilder;
 use std::iter::{Filter, Map};
 use std::path::PathBuf;
@@ -44,16 +43,15 @@ pub fn get_files(pattern: &str) -> Filter<Map<Paths, fn(GlobResult) -> PathBuf>,
     return get_paths(pattern).filter(|path| path.is_file());
 }
 
+/// Runs `matcher` against each line of `contents`.
+/// Returns the found lines.
 pub fn search<'a, F>(contents: &'a str, matcher: F)
-                     -> Result<Vec<String>, Box<dyn Error>>
-    where F: Fn(&str) -> bool {
-    let mut matched_lines = Vec::new();
-    for (i, line) in contents.lines().enumerate() {
-        if matcher(line) {
-            matched_lines.push(format!(":{} {}", i + 1, line));
-        };
-    };
-    Ok(matched_lines)
+                      -> impl Iterator<Item=(usize, &'a str)>
+    where F: Fn(&str) -> bool + 'a {
+    contents
+        .lines()
+        .enumerate()
+        .filter(move |(_i, line)| matcher(line))
 }
 
 /// Builds a configured function that compares strings
@@ -84,7 +82,7 @@ mod tests {
 
     #[test]
     fn search_finds_second_line() {
-        assert_eq!(search("hello\nworld", |s| s == "world").unwrap()[0], ":2 world");
+        assert_eq!(search("hello\nworld", |s| s == "world").next().unwrap(), (1, "world"));
     }
 
     #[test]

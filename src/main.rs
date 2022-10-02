@@ -20,8 +20,8 @@ fn main() {
 
 fn search_in_file(path: PathBuf, matcher: &dyn Fn(&str) -> bool) -> Result<(), Box<dyn Error>> {
     let contents = fs::read_to_string(path)?;
-    for line in lib::search(contents.as_str(), matcher)? {
-        println!("{}", line);
+    for (i, line) in lib::search(contents.as_str(), matcher) {
+        println!(":{} {}", i + 1, line)
     }
     Ok(())
 }
