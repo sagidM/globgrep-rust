@@ -60,3 +60,58 @@ pub fn build_matcher<'a>(grep: &Grep, q: &'a str) -> Box<dyn Fn(&str) -> bool + 
         Box::new(move |s: &str| -> bool { s.contains(q) })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{build_matcher, Grep, search};
+
+    #[test]
+    fn search_finds_second_line() {
+        assert_eq!(search("hello\nworld", |s| s == "world").unwrap()[0], ":2 world");
+    }
+
+    #[test]
+    fn matcher_default() {
+        let matcher = build_matcher(&Grep { filename: String::new(), query: String::new(), ignore_case: false, is_regexp: false },
+                                    "hello World");
+
+        assert!(!matcher("hello"), "should not contain 'hello World'");
+        assert!(!matcher("hello 123 World"));
+        assert!(!matcher("hello world and more"), "should not contain 'hello World'");
+        assert!(!matcher("unknown"));
+
+        assert!(matcher("hello World and more"), "should contain 'hello World'");
+    }
+
+    #[test]
+    fn matcher_ignore_case() {
+        let matcher = build_matcher(&Grep { filename: String::new(), query: String::new(), ignore_case: true, is_regexp: false },
+                                    "HellO World");
+        assert!(!matcher("ello wo"));
+
+        assert!(matcher("hello world"));
+        assert!(matcher("prefix hEllo worLd postfix"));
+    }
+
+    #[test]
+    fn matcher_regexp() {
+        let matcher = build_matcher(&Grep { filename: String::new(), query: String::new(), ignore_case: false, is_regexp: true },
+                                    r"He.*\sWorld");
+        assert!(!matcher("ello wo"));
+        assert!(!matcher("hello world"));
+
+        assert!(matcher("Hello World"));
+        assert!(matcher("prefix Hello World postfix"));
+    }
+
+    #[test]
+    fn matcher_regexp_ignore_case() {
+        let matcher = build_matcher(&Grep { filename: String::new(), query: String::new(), ignore_case: true, is_regexp: true },
+                                    r"He.*\sWorld");
+        assert!(!matcher("ello wo"));
+
+        assert!(matcher("hello world"));
+        assert!(matcher("Hello World"));
+        assert!(matcher("prefix Hello World postfix"));
+    }
+}
