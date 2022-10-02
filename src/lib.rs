@@ -5,6 +5,8 @@ use std::iter::{Filter, Map};
 use std::path::PathBuf;
 use glob::{glob, GlobResult, Paths};
 
+/// Represents a configuration of the app.
+/// It consists of the arguments given to the program
 #[derive(Debug)]
 pub struct Grep {
     pub query: String,
@@ -27,10 +29,17 @@ impl Grep {
     }
 }
 
+/// Returns the names of files and directories by given pattern
+/// # Examples
+/// ```
+/// mygrep::get_paths("*.txt"); // returns all txt files
+/// mygrep::get_paths("src/*"); // returns everything in the src dir
+/// ```
 pub fn get_paths(pattern: &str) -> Map<Paths, fn(GlobResult) -> std::path::PathBuf> {
     glob(pattern).unwrap().map(|path| path.unwrap())
 }
 
+/// Calls `get_paths` and filters out only the files
 pub fn get_files(pattern: &str) -> Filter<Map<Paths, fn(GlobResult) -> PathBuf>, fn(&PathBuf) -> bool> {
     return get_paths(pattern).filter(|path| path.is_file());
 }
@@ -47,6 +56,14 @@ pub fn search<'a, F>(contents: &'a str, matcher: F)
     Ok(matched_lines)
 }
 
+/// Builds a configured function that compares strings
+/// # Examples
+/// ```use mygrep::*;
+/// let (filename, query, is_regexp) = (String::new(), String::new(), false);
+/// let matcher = build_matcher(&Grep { filename, query, is_regexp, ignore_case: false }, "hello");
+/// assert!(matcher("Hello world"));
+/// assert!(!matcher("some text"));
+/// ```
 pub fn build_matcher<'a>(grep: &Grep, q: &'a str) -> Box<dyn Fn(&str) -> bool + 'a> {
     if grep.is_regexp {
         let re = RegexBuilder::new(q).case_insensitive(grep.ignore_case).build().unwrap();
