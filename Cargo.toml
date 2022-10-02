@@ -1,5 +1,5 @@
 [package]
-name = "mygrep"
+name = "globgrep"
 version = "0.1.0"
 edition = "2021"
 description = "grep utility written in Rust"

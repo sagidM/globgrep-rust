@@ -32,8 +32,8 @@ impl Grep {
 /// Returns the names of files and directories by given pattern
 /// # Examples
 /// ```
-/// mygrep::get_paths("*.txt"); // returns all txt files
-/// mygrep::get_paths("src/*"); // returns everything in the src dir
+/// globgrep::get_paths("*.txt"); // returns all txt files
+/// globgrep::get_paths("src/*"); // returns everything in the src dir
 /// ```
 pub fn get_paths(pattern: &str) -> Map<Paths, fn(GlobResult) -> std::path::PathBuf> {
     glob(pattern).unwrap().map(|path| path.unwrap())
@@ -58,7 +58,7 @@ pub fn search<'a, F>(contents: &'a str, matcher: F)
 
 /// Builds a configured function that compares strings
 /// # Examples
-/// ```use mygrep::*;
+/// ```use globgrep::*;
 /// let (filename, query, is_regexp) = (String::new(), String::new(), false);
 /// let matcher = build_matcher(&Grep { filename, query, is_regexp, ignore_case: false }, "hello");
 /// assert!(matcher("Hello world"));

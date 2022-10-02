@@ -14,5 +14,5 @@ IS_REGEXP=1 IGNORE_CASE=1 cargo run -- "fn.*result" "src/main*"
 Or if you want to run the binary only:
 ```bash
 cargo build
-IS_REGEXP=1 IGNORE_CASE=1 ./target/debug/mygrep "fn.*result" "src/main*"
+IS_REGEXP=1 IGNORE_CASE=1 ./target/debug/globgrep "fn.*result" "src/main*"
 ```
